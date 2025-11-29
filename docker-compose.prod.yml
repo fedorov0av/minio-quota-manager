@@ -1,0 +1,50 @@
+services:
+
+  msc-db:
+    container_name: msc-db
+    image: postgres:17-alpine3.22
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    volumes:
+      - ./database/postgres_data:/var/lib/postgresql/data
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+    command: -p ${POSTGRES_PORT}
+    networks:
+      - msc_network
+      
+  msc-redis:
+    container_name: msc-redis
+    image: redis:8.2.2-alpine3.22
+    restart: unless-stopped
+    volumes:
+      - ./database/redis_data:/data
+    networks:
+      - msc_network
+
+  msc-celery:
+    container_name: msc-celery
+    image: '${DOCKER_REGISTRY_URL}${DOCKER_IMAGE_NAME}:${DOCKER_TAG}'
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - msc-redis
+      - msc-db
+    env_file:
+      - .env
+    networks:
+      - msc_network
+
+networks:
+  msc_network:
+    name: msc_network
+    driver: bridge

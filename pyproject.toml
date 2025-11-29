@@ -1,0 +1,16 @@
+[project]
+name = "minio-quota-manager"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.17.1",
+    "celery[redis]>=5.5.3",
+    "loguru>=0.7.3",
+    "minio>=7.2.18",
+    "psycopg>=3.2.12",
+    "psycopg-binary>=3.2.12",
+    "pydantic-settings>=2.11.0",
+    "sqlalchemy>=2.0.44",
+]
